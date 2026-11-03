@@ -315,13 +315,14 @@ function App() {
 
           {activeTab === 'game' && (
             <GameView
-              stars={stars}
               gems={gems}
+              explorationPoints={levelExplorationPoints}
               onAddGem={(amount) => {
                 handleAddCurrency('gem', amount);
                 setLevelCoinsCollected((previous) => previous + amount);
               }}
               onAddExplorationPoints={(amount) => setLevelExplorationPoints((previous) => previous + amount)}
+              onResetExplorationPoints={() => setLevelExplorationPoints(0)}
               onBack={() => {
                 setLevelExplorationPoints(0);
                 setActiveTab('level');
@@ -334,7 +335,7 @@ function App() {
             <QuizView
               levelId={selectedLevel?.id ?? quizLevel}
               explorationPoints={levelExplorationPoints}
-              coinsEarned={levelCoinsCollected}
+              coinsTotal={levelCoinsCollected}
               xpEarned={completedLevels.includes(selectedLevel?.id ?? quizLevel) ? 0 : 100}
               onFinish={(result) => handleLevelComplete(selectedLevel?.id ?? quizLevel, result)}
               onRetry={() => {

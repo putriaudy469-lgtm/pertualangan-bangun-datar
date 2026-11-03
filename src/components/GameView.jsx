@@ -33,7 +33,15 @@ function ShapeIcon({ shape }) {
   return <span className="game-shape-icon circle" aria-hidden="true" />;
 }
 
-export default function GameView({ stars, gems, onBack, onFinish, onAddGem, onAddExplorationPoints }) {
+export default function GameView({
+  gems,
+  explorationPoints = 0,
+  onBack,
+  onFinish,
+  onAddGem,
+  onAddExplorationPoints,
+  onResetExplorationPoints,
+}) {
   const [player, setPlayer] = useState({ x: 12, y: 0, grounded: false });
   const [enemyX, setEnemyX] = useState(51);
   const [collected, setCollected] = useState(() => new Set());
@@ -55,15 +63,27 @@ export default function GameView({ stars, gems, onBack, onFinish, onAddGem, onAd
   const invulnerableUntil = useRef(0);
   const toastTimer = useRef(null);
   const invulnerabilityTimer = useRef(null);
-  const callbacks = useRef({ onAddGem, onAddExplorationPoints, onBack, onFinish });
+  const callbacks = useRef({
+    onAddGem,
+    onAddExplorationPoints,
+    onResetExplorationPoints,
+    onBack,
+    onFinish,
+  });
   const isComplete = collected.size === COLLECTIBLES.length;
   const isGameOver = lives === 0;
 
   useEffect(() => {
-    callbacks.current = { onAddGem, onAddExplorationPoints, onBack, onFinish };
+    callbacks.current = {
+      onAddGem,
+      onAddExplorationPoints,
+      onResetExplorationPoints,
+      onBack,
+      onFinish,
+    };
     pausedRef.current = isPaused;
     livesRef.current = lives;
-  }, [isPaused, lives, onAddGem, onAddExplorationPoints, onBack, onFinish]);
+  }, [isPaused, lives, onAddGem, onAddExplorationPoints, onResetExplorationPoints, onBack, onFinish]);
 
   const showToast = useCallback((message) => {
     setToast(message);
@@ -263,6 +283,7 @@ export default function GameView({ stars, gems, onBack, onFinish, onAddGem, onAd
 
   const handleRestart = () => {
     playClick();
+    callbacks.current.onResetExplorationPoints?.();
     playerRef.current = { x: 12, y: null, velocityY: 0, grounded: false };
     enemyRef.current = { x: 51, direction: 1 };
     checkpointRef.current = { x: 12, top: PLATFORMS[0].top };
@@ -289,9 +310,11 @@ export default function GameView({ stars, gems, onBack, onFinish, onAddGem, onAd
         Ⅱ
       </button>
 
-      <div className="game-currency" aria-label={`${gems} koin dan ${stars} bintang`}>
+      <div className="game-currency" aria-label={`${explorationPoints} poin dan ${gems} koin`}>
+        <span className="game-point-count" aria-live="polite">
+          <span aria-hidden="true">★</span>{explorationPoints} poin
+        </span>
         <span className="game-coin-count"><span aria-hidden="true">●</span>{gems}</span>
-        <span className="game-star-count" aria-hidden="true">★ ★ ★</span>
       </div>
 
       <header className="game-objective">
